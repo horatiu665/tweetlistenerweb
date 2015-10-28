@@ -1,0 +1,124 @@
+	<div class="row panel">
+		<!-- command window -->
+		<div id="command" class="col-xs-12">
+			<!-- buttons, activate various command sub-panels -->
+			<div role="tabpanel">
+				<!-- Nav tabs -->
+				<ul id="command-tabs" class="nav nav-pills" role="tablist">
+					<li role="presentation" class="active">
+						<a href="#tab-viewTweets" aria-controls="tab-viewTweets" role="tab" data-toggle="tab">View Tweets</a></li>
+					<li role="presentation">
+						<a href="#tab-viewFullTweets" aria-controls="tab-viewFullTweets" role="tab" data-toggle="tab">View Full Tweets</a></li>
+					<li role="presentation">
+						<a href="#tab-customQuery" aria-controls="tab-customQuery" role="tab" data-toggle="tab">Custom Query</a></li>
+					<li role="presentation">
+						<a href="#tab-viewGraph" aria-controls="tab-viewGraph" role="tab" data-toggle="tab">View Graph</a></li>
+					
+				</ul>
+				<p> <!-- for spacing -->
+					<!-- Tab panes -->
+					<div class="tab-content">
+						<div role="tabpanel" class="tab-pane in active" id="tab-viewTweets">
+							<!-- latest tweet command -->
+							<form id="command-viewTweets-form" class="form-horizontal">
+								<button type="submit" id="command-viewTweets-all" class="btn btn-primary">
+									View latest tweets
+								</button>
+								<label for="command-viewTweets-limit" class="col-xs-2 control-label">
+									Max tweet limit
+								</label>
+								<div class="col-xs-2">
+									<input type="text" class="form-control" id="command-viewTweets-limit" placeholder="50"/>
+								</div>
+							</form>
+						</div>
+						
+						<div role="tabpanel" class="tab-pane" id="tab-viewFullTweets">
+							<!-- latest tweet command -->
+							<form id="command-viewFullTweets-form" class="form-horizontal">
+								<button type="submit" id="command-viewFullTweets-all" class="btn btn-primary">
+									View full tweets
+								</button>
+								<label for="command-viewFullTweets-limit" class="col-xs-2 control-label">
+									Max tweet limit
+								</label>
+								<div class="col-xs-2">
+									<input type="text" class="form-control" id="command-viewFullTweets-limit" placeholder="50"/>
+								</div>
+							</form>
+						</div>
+						
+						<div role="tabpanel" class="tab-pane" id="tab-customQuery">
+							<!-- custom query command -->
+							<form id="command-customQuery" class="form-horizontal">
+								<div class="form-group">
+									<label for="command-customQuery-input" class="col-xs-2 control-label">Custom Query</label>
+									<div class="col-xs-8">
+										<!--
+										<textarea class="form-control" rows="1" id="command-customQuery-input" placeholder="Select * ..."/>
+										-->
+										<input type="text" class="form-control" id="command-customQuery-input" placeholder="Select * ..."/>
+									</div>
+									<div class="col-xs-2">
+										<button type="submit" id="command-customQuery-submit" class="btn btn-primary">
+											Submit
+										</button>
+									</div>
+								</div>
+							</form>
+							
+						</div>
+						
+						<div role="tabpanel" class="tab-pane" id="tab-viewGraph">
+							<!-- graph view -->
+							<form id="command-viewGraph" class="form-horizontal">
+								<div class="form-group">
+									<div class="col-xs-12">
+										
+										<label for="command-viewGraph-tableName" class="col-xs-1 control-label">
+											Table
+										</label>
+										<div class="col-xs-2">
+											<input type="text" class="form-control" id="command-viewGraph-tableName" placeholder="json"/>
+										</div>
+										
+										<label for="command-viewGraph-date" class="col-xs-1 control-label">
+											Release
+										</label>
+										<div class="col-xs-2">
+											<input type="text" class="form-control command-viewGraph-datepicker-class" id="command-viewGraph-date" placeholder="1993-07-23"/>
+										</div>
+										
+										<label for="command-viewGraph-binSize" class="col-xs-1 control-label">
+											Days/bin
+										</label>
+										<div class="col-xs-2">
+											<input type="text" class="form-control" id="command-viewGraph-binSize" placeholder="3"/>
+										</div>
+
+										<label for="command-viewGraph-daysRange" class="col-xs-1 control-label">
+											Range
+										</label>
+										<div class="col-xs-2">
+											<input type="text" class="form-control" id="command-viewGraph-daysRange" placeholder="14"/>
+										</div>
+
+									</div>
+									<div class="col-xs-12">
+										<div class="col-xs-4"></div>
+										<button type="submit" id="command-viewGraph-button" class="btn btn-primary col-xs-4">
+											Load Graph
+										</button>
+									</div>
+								</div>
+							</form>
+							
+						</div>
+					</div>
+				</p>
+				
+			</div>
+			
+			
+		</div>
+	</div>

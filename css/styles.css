@@ -1,0 +1,10 @@
+#header-text {
+	background-color: #c0deed;
+	margin-bottom: 1em;
+	border-radius: 0px 0px 100px 100px;
+	text-align: center;
+}
+
+.monospace {
+	font-family: monospace;
+}
