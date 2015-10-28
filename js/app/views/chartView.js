@@ -21,6 +21,7 @@ define(function (require) {
 			this.$el.html(template(this.model.attributes));
 			return this;
 		}
+
     });
 
 });

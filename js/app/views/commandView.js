@@ -76,30 +76,7 @@ define(function (require) {
 			// viewGraph
 			$("#command-viewGraph-button").on("click", function(event) {
 				
-				// old method where we get every 3rd day and count tweets in each.
-				if (false) {
-					// resolution of the graph is how many columns to show, out of the total size of the database table.
-					var resolution = 3;
-					// separate query to find out size of DB
-					var sizeQuery = "SELECT COUNT(*) FROM json";
-					var size = 0;
-					self.customQuery(sizeQuery, function(str) {
-						size = parseInt($.parseJSON(str)[0]["COUNT(*)"]);
-						// every how many-eth row should we query?
-						var everyNthRow = Math.floor(size / resolution);
-						var tweetsQuery = "set @row:=-1; SELECT json.* FROM json "
-							+ "INNER JOIN ( SELECT id FROM ( SELECT @row:=@row+1 AS rownum, id FROM "
-								+ "( SELECT id FROM json ORDER BY id )"
-								+ " AS sorted ) as ranked WHERE rownum % " 
-							+ everyNthRow + " = 0 ) AS subset ON subset.id = json.id";
-						self.customMultiQuery(tweetsQuery, function(str) {
-							self.outputView.renderGraph(str);
-						
-						});
-					});
-				}
-
-				// new method where we use query to calculate sum of tweets for 3 by 3 days.
+				$("#output").html("");
 
 				var tableName = $("#command-viewGraph-tableName").val();//"json";
 				if (tableName == "") tableName = "json";
@@ -112,70 +89,45 @@ define(function (require) {
 				var daysRange = $("#command-viewGraph-daysRange").val();//14;
 				if (daysRange == "") daysRange = 14;
 
-				var sumPerDayQuery = "SELECT DATE_FORMAT(DATE_SUB(`created_at`, INTERVAL MOD(DAY(`created_at`), "+daysPerHistogramBin+") DAY), '%m-%d')"
-					+" as DATES, Count(*) AS COUNT FROM `"+tableName+"` WHERE (`created_at` "
-					+"BETWEEN DATE_SUB('"+releaseDate+" 00:00:00', INTERVAL "+daysRange+" DAY) AND DATE_ADD('"+releaseDate+" 00:00:00', INTERVAL "+daysRange+" DAY)  ) group by DATES";
-				
-				// using fusioncharts
-				// http://www.fusioncharts.com/dev/getting-started/building-your-first-chart.html
-				// <div id="chartContainer">FusionCharts XT will load here!</div>
-				$("#output").html('<div id="fusionChartContainer">FusionCharts XT will load here!</div>');
-
-				var width = $("#fusionChartContainer").width();
-				var height = 400;//$("#fusionChartContainer").height();
-
-
-				self.customQuery(sumPerDayQuery, function(str) {
-					
-					var chartData = str;
-					// THX second answer from http://stackoverflow.com/questions/1144783/replacing-all-occurrences-of-a-string-in-javascript
-					chartData = chartData.split("DATES").join("label");
-					chartData = chartData.split("COUNT").join("value");
-
-					FusionCharts.ready(function(){
-					      var revenueChart = new FusionCharts({
-					        "type": "column2d",
-					        "renderAt": "fusionChartContainer",
-					        "width": width,
-					        "height": height,
-					        "dataFormat": "json",
-					        "dataSource": {
-					          "chart": {
-					              "caption": "Tweet Histogram",
-					              "subCaption": "Table: " + tableName,
-					              "xAxisName": "Dates",
-					              "yAxisName": "Tweet count",
-					              "theme": "fint"
-					           },
-					          "data": 
-					          	  JSON.parse(chartData)
-					          // [
-					          //     {
-					          //        "label": "Jan",
-					          //        "value": "420000"
-					          //     },
-					          //     {
-					          //        "label": "Feb",
-					          //        "value": "810000"
-					          //     },
-					          //     {
-					          //        "label": "Mar",
-					          //        "value": "720000"
-					          //     }
-					          //  ]
-
-					        }
-					    });
-
-					    revenueChart.render();
-					});
-
-				});
+				self.drawChart(self, daysPerHistogramBin, tableName, releaseDate, daysRange, 400);
 
 				event.preventDefault();
 
 			}); // end viewGraph
 			
+			// all games button
+			$("#command-viewGraph-allGamesButton").on("click", function(event) {
+				
+				// query for list of games and release dates, where category == 0
+				// for each of those games, generate chart
+
+				$("#output").html("");
+
+				var getGamesQuery = "SELECT name, releasedate FROM games WHERE category = 0";
+
+				var daysPerHistogramBin = $("#command-viewGraph-binSize").val();//1;
+				if (daysPerHistogramBin == "") daysPerHistogramBin = 1;
+
+				var daysRange = $("#command-viewGraph-daysRange").val();//14;
+				if (daysRange == "") daysRange = 14;
+
+				self.customQuery(getGamesQuery, function(str) {
+					// list of games returned as json array 
+					var gamesList = JSON.parse(str);
+					for (var i = 0; i < gamesList.length; i++) {
+						var tableName = gamesList[i]["name"];
+						var releaseDate = gamesList[i]["releasedate"];
+
+						self.drawChart(self, daysPerHistogramBin, tableName, releaseDate, daysRange, 400);
+
+					};
+
+				});
+
+				event.preventDefault();
+
+			}); // end all games button
+
 			return this;
 		},
 		customQuery: function(query, callback) {
@@ -229,6 +181,54 @@ define(function (require) {
 				}
 			});
 			
+		},
+
+		drawChart: function(self, daysPerHistogramBin, tableName, releaseDate, daysRange, height) {
+
+			var sumPerDayQuery = "SELECT DATE_FORMAT(DATE_SUB(`created_at`, INTERVAL MOD(DAY(`created_at`), "+daysPerHistogramBin+") DAY), '%m-%d')"
+				+" as DATES, Count(*) AS COUNT FROM `"+tableName+"` WHERE (`created_at` "
+				+"BETWEEN DATE_SUB('"+releaseDate+" 00:00:00', INTERVAL "+daysRange+" DAY) AND DATE_ADD('"+releaseDate+" 00:00:00', INTERVAL "+daysRange+" DAY)  ) group by DATES";
+				
+			// using fusioncharts
+			// http://www.fusioncharts.com/dev/getting-started/building-your-first-chart.html
+			// <div id="chartContainer">FusionCharts XT will load here!</div>
+			$("#output").append('<div id="fusionChart-'+tableName+'">FusionChart for game '+tableName+' is loading...</div>');
+
+			var width = $("#fusionChart-"+tableName).width();
+
+			self.customQuery(sumPerDayQuery, function(str) {
+				
+				var chartData = str;
+				// THX second answer from http://stackoverflow.com/questions/1144783/replacing-all-occurrences-of-a-string-in-javascript
+				chartData = chartData.split("DATES").join("label");
+				chartData = chartData.split("COUNT").join("value");
+
+				FusionCharts.ready(function(){
+				      var myChart = new FusionCharts({
+				        "type": "column2d",
+				        "renderAt": "fusionChart-"+tableName,
+				        "width": width,
+				        "height": height,
+				        "dataFormat": "json",
+				        "dataSource": {
+				          "chart": {
+				              "caption": "Tweet Histogram",
+				              "subCaption": "Table: " + tableName,
+				              "xAxisName": "Dates",
+				              "yAxisName": "Tweet count",
+				              "theme": "fint"
+				           },
+				          "data": 
+				          	  JSON.parse(chartData)
+
+				        }
+				    });
+
+				    myChart.render();
+				});
+
+			});
+
 		}
     });
 
