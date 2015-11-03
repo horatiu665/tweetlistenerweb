@@ -111,12 +111,17 @@ define(function (require) {
 				var daysRange = $("#command-viewGraph-daysRange").val();//14;
 				if (daysRange == "") daysRange = 14;
 
+				var releaseDateInput = $("#command-viewGraph-date").val();
+				if (releaseDateInput == "") ; // if empty, leave it empty, we will set the release date of the game in the for loop.
+
 				self.customQuery(getGamesQuery, function(str) {
 					// list of games returned as json array 
 					var gamesList = JSON.parse(str);
 					for (var i = 0; i < gamesList.length; i++) {
 						var tableName = gamesList[i]["name"];
-						var releaseDate = gamesList[i]["releasedate"];
+						var releaseDate = (releaseDateInput == "" ? gamesList[i]["releasedate"] : releaseDateInput);
+
+						console.log("Drawing chart for " + tableName + " with " + daysPerHistogramBin + " days per bin, for " + daysRange + " days around the date " + releaseDate);
 
 						self.drawChart(self, daysPerHistogramBin, tableName, releaseDate, daysRange, 400);
 
